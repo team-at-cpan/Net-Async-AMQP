@@ -80,42 +80,6 @@ sub request {
 	});
 }
 
-sub whatever {
-	my ($self, %args) = @_;
-	my $name = delete $args{queue} // '';
-	$self->open_channel->then(sub {
-		my ($ch) = shift;
-		$ch->queue_declare(
-			queue => $name
-		)->then(sub {
-			my ($q) = @_;
-			$log->infof("Queue is %s", $q->queue_name);
-			$q->consumer(
-				channel => $ch,
-				ack => 1,
-				on_message => sub {
-					my ($ev, %args) = @_;
-					my $dtag = $args{delivery_tag};
-					eval {
-						$self->on_message(%args)
-					} or do {
-						$log->errorf("Error processing: %s", $@);
-					};
-					$self->{pending}{$dtag} = $ch->ack(
-						delivery_tag => $dtag
-					)->on_ready(sub {
-						delete $self->{pending}{$dtag}
-					});
-				}
-			)->on_done(sub {
-				my ($q, $ctag) = @_;
-				$self->{consumer_tag} = $ctag;
-				$log->infof("Queue %s has ctag %s", $q->queue_name, $ctag);
-			})
-		})
-	})
-}
-
 my $json;
 sub json_request {
 	my ($self, $cmd, $args) = @_;
