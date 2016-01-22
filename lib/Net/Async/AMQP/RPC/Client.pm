@@ -48,7 +48,7 @@ BEGIN {
 }
 
 sub request {
-	my ($self, $type, $payload) = @_;
+	my ($self, $type, $payload, %args) = @_;
 	my $id = $self->next_id;
 	Future->needs_all(
 		$self->publisher_channel,
@@ -74,6 +74,7 @@ sub request {
 			correlation_id => $id,
 			type           => $type,
 			payload        => $payload,
+			%args
 		)->then(sub {
 			$f
 		});
@@ -89,7 +90,11 @@ sub json_request {
 		} or die "->json_request requires the JSON::MaybeXS module, which could not be loaded:\n$@";
 		$json = JSON::MaybeXS->new;
 	};
-	$self->request($cmd, $json->encode($args))->then(sub {
+	$self->request(
+		$cmd,
+		$json->encode($args),
+		content_type => 'application/json',
+	)->then(sub {
 		my $data = shift;
 		eval {
 			Future->done($json->decode($data))
