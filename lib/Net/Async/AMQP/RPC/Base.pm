@@ -245,7 +245,27 @@ sub consumer {
 
 =head2 on_message
 
-Called when there's a message. Receives the channel and some named parameters. I'll document those in a few minutes.
+Called when there's a message. Receives the L<Net::Async::AMQP::Channel> followed by some named parameters:
+
+=over 4
+
+=item * type
+
+=item * payload - scalar containing the raw binary data for this message
+
+=item * consumer_tag - which consumer tag received this message
+
+=item * delivery_tag - the delivery information for L<Net::Async::AMQP::Channel/ack>
+
+=item * routing_key - routing key used for this message
+
+=item * properties - any properties for the message
+
+=item * headers - custom headers
+
+=back
+
+See L<Net::Async::AMQP::Queue/consumer> for more details (including the contents of C<properties> and C<headers>).
 
 =cut
 
@@ -275,7 +295,22 @@ sub on_message {
 	})
 }
 
+=head2 process_message
+
+Abstract method for message processing. Will receive the following named parameters:
+
+The base implementation here will raise an exception. Override this in your subclass
+to do something more useful.
+
+=cut
+
 sub process_message { die 'abstract method ->process_message called - please subclass and override' }
+
+=head2 consumer_channel
+
+Returns a L<Future> which resolves to the L<Net::Async::AMQP::Channel> used for the consumer.
+
+=cut
 
 sub consumer_channel {
 	my $self = shift;
@@ -286,6 +321,12 @@ sub consumer_channel {
 	})
 }
 
+=head2 publisher_channel
+
+Returns a L<Future> which resolves to the L<Net::Async::AMQP::Channel> used for the publisher.
+
+=cut
+
 sub publisher_channel {
 	my $self = shift;
 	$self->{consumer_channel} ||= $self->connected->then(sub {
@@ -294,6 +335,12 @@ sub publisher_channel {
 		$log->debugf("Sender channel ID %d", shift->id);
 	})
 }
+
+=head2 active
+
+Returns a L<Future> which resolves when the underlying MQ connection is ready for use.
+
+=cut
 
 sub active {
 	my $self = shift;
