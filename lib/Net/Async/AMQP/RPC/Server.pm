@@ -46,13 +46,41 @@ sub json {
 
 sub process_message {
 	my ($self, %args) = @_;
-	$log->infof("Have message: %s", join ' ', %args);
-	$self->reply(
-		reply_to => $args{reply_to},
-		correlation_id => $args{id},
-		type => $args{type},
-		payload => '{ "status": "ok" }',
-	);
+	$log->debugf("Have message: %s", join ' ', %args);
+	if(my $code = $self->{json_handler}{$args{type}}) {
+		# Run the code, and upgrade to a Future if necessary - we accept immediate values,
+		# or Futures for deferred responses
+		my $f = eval {
+			$code->(%args) || die 'expected hashref or arrayref, had false'
+		} || Future->fail($@);
+		$f = Future->done($f) unless Scalar::Util::blessed($f) && $f->isa('Future');
+
+		# Once our response is ready, send the reply
+		retain_future(
+			$f->then(sub {
+				eval {
+					Future->done($self->json->encode(shift))
+				} or Future->fail({ error => 'failed to encode output' })
+			}, sub {
+				$self->json->encode({ error => shift })
+			})->then(sub {
+				my $v = shift;
+				$self->reply(
+					reply_to       => $args{reply_to},
+					correlation_id => $args{id},
+					type           => $args{type},
+					payload        => $v
+				)
+			})
+		);
+	} else {
+		$self->reply(
+			reply_to       => $args{reply_to},
+			correlation_id => $args{id},
+			type           => $args{type},
+			payload        => '{ "status": "ok" }',
+		);
+	}
 }
 
 sub configure {
