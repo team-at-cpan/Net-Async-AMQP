@@ -29,6 +29,8 @@ Provides a server implementation for RPC handling.
 
 =cut
 
+use Variable::Disposition qw(retain_future);
+
 use Log::Any qw($log);
 
 sub request {
