@@ -21,6 +21,10 @@ feature 'rpc', 'RPC Client/server support' => sub {
 	recommends 'JSON::MaybeXS', 0;
 };
 
+feature 'protobuf', 'Google Protocol buffers encoding for RPC' => sub {
+	requires 'Google::ProtocolBuffers', '>= 0.11';
+};
+
 on 'test' => sub {
 	requires 'Test::More', '>= 0.98';
 	requires 'Test::Fatal', '>= 0.010';
