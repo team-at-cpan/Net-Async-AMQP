@@ -33,8 +33,16 @@ use Variable::Disposition qw(retain_future);
 
 use Log::Any qw($log);
 
-
 sub queue { shift->server_queue }
+
+sub json {
+	shift->{json} //= do {
+		eval {
+			require JSON::MaybeXS;
+		} or die "JSON RPC support requires the JSON::MaybeXS module, which could not be loaded:\n$@";
+		JSON::MaybeXS->new
+	}
+}
 
 sub process_message {
 	my ($self, %args) = @_;
