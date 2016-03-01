@@ -87,6 +87,7 @@ sub process_message {
 					reply_to       => $args{reply_to},
 					correlation_id => $args{id},
 					type           => $args{type},
+					content_type   => 'application/json',
 					payload        => $v
 				)
 			})
