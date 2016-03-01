@@ -68,6 +68,12 @@ RabbitMQ provides some additional features:
 
 =item * Consumer cancellation notification
 
+=item * Reject
+
+=item * TTL for message expiry
+
+=item * 255-level priorities
+
 =back
 
 =head2 Missing features
