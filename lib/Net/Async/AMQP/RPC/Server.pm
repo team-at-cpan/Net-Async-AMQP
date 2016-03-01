@@ -11,7 +11,7 @@ Net::Async::AMQP::RPC::Server - server RPC handling
 
 =head1 DESCRIPTION
 
-Provides a server implementation for RPC handling.
+Provides a basic server implementation for RPC handling.
 
 =over 4
 
