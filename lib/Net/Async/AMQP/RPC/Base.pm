@@ -271,14 +271,17 @@ See L<Net::Async::AMQP::Queue/consumer> for more details (including the contents
 
 sub on_message {
 	my ($self, $ch, %args) = @_;
+	# { my %x = %{$args{properties}}; $log->debugf("have: %s", join ',', map { $_ . '=' . $x{$_} } sort keys %x); }
 	$log->debugf("Received message of type %s, correlation ID %s, reply_to %s", $args{type}, $args{properties}{correlation_id}, $args{properties}{reply_to});
 	my $dtag = $args{delivery_tag};
 	(eval {
 		my $f = $self->process_message(
-			type => $args{type},
-			id => $args{properties}{correlation_id},
-			reply_to => $args{properties}{reply_to},
-			payload => $args{payload},
+			type         => $args{type},
+			id           => $args{properties}{correlation_id},
+			reply_to     => $args{properties}{reply_to},
+			payload      => $args{payload},
+			content_type => $args{properties}{content_type},
+			user_id      => $args{properties}{user_id},
 		);
 		$f = Future->done($f) unless Scalar::Util::blessed($f) && $f->isa('Future');
 		$f
