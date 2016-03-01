@@ -97,10 +97,25 @@ sub process_message {
 			reply_to       => $args{reply_to},
 			correlation_id => $args{id},
 			type           => $args{type},
-			payload        => '{ "status": "ok" }',
+			content_type   => 'text/plain',
+			payload        => 'no handler defined',
 		);
 	}
 }
+
+=head2 configure
+
+Applies configuration:
+
+=over 4
+
+=item * json_handler - defines the JSON handlers for each type
+
+=item * handler - defines default handlers
+
+=back
+
+=cut
 
 sub configure {
 	my ($self, %args) = @_;
