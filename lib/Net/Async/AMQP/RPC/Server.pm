@@ -33,7 +33,19 @@ use Variable::Disposition qw(retain_future);
 
 use Log::Any qw($log);
 
+=head2 queue
+
+Returns the server L<Net::Async::AMQP::Queue> instance.
+
+=cut
+
 sub queue { shift->server_queue }
+
+=head2 json
+
+Returns a L<JSON::MaybeXS> object, for ->encode and ->decode support. This will load L<JSON::MaybeXS> on first call.
+
+=cut
 
 sub json {
 	shift->{json} //= do {
@@ -43,6 +55,12 @@ sub json {
 		JSON::MaybeXS->new
 	}
 }
+
+=head2 process_message
+
+Called when there is a message to process. Receives several named parameters:
+
+=cut
 
 sub process_message {
 	my ($self, %args) = @_;
