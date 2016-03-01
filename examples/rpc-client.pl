@@ -5,6 +5,7 @@ use Getopt::Long;
 use Pod::Usage;
 
 use IO::Async::Loop;
+use Data::Dumper;
 
 use Net::Async::AMQP::RPC::Server;
 use Net::Async::AMQP::RPC::Client;
@@ -63,7 +64,7 @@ $loop->add(
 # immediately: they will be queued until the consumer is active.
 eval {
 	my $response = $rpc->json_request($cmd => { args => [ @ARGV ] })->get;
-	print "Server response to [$cmd]: " . $response->{status} . "\n";
+	print "Server response to [$cmd]: " . (delete $response->{status}) . ":\n" . Dumper($response);
 } or do {
 	warn "Server reports failure: $@\n"
 };
