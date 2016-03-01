@@ -435,6 +435,69 @@ sub ack {
 	});
 }
 
+=head2 nack
+
+Negative acknowledgement for a specific delivery.
+
+Returns a L<Future> which will resolve with the
+channel instance once the operation is complete.
+
+ $ch->nack(
+  delivery_tag => 123,
+ ) ==> $ch
+
+=cut
+
+sub nack {
+	my $self = shift;
+	my %args = @_;
+
+	my $id = $self->id;
+	$self->future->on_done(sub {
+		my $channel = $id;
+		my $frame = Net::AMQP::Frame::Method->new(
+			method_frame => Net::AMQP::Protocol::Basic::Nack->new(
+			   # nowait      => 0,
+				delivery_tag => $args{delivery_tag},
+				multiple     => $args{multiple} // 0,
+				requeue      => $args{requeue} // 0,
+			)
+		);
+		$self->send_frame($frame);
+	});
+}
+
+=head2 reject
+
+Reject a specific delivery.
+
+Returns a L<Future> which will resolve with the
+channel instance once the operation is complete.
+
+ $ch->nack(
+  delivery_tag => 123,
+ ) ==> $ch
+
+=cut
+
+sub reject {
+	my ($self, %args) = @_;
+
+	my $id = $self->id;
+	$self->future->on_done(sub {
+		my $channel = $id;
+		my $frame = Net::AMQP::Frame::Method->new(
+			method_frame => Net::AMQP::Protocol::Basic::Reject->new(
+			   # nowait      => 0,
+				delivery_tag => $args{delivery_tag},
+				multiple     => $args{multiple} // 0,
+				requeue      => $args{requeue} // 0,
+			)
+		);
+		$self->send_frame($frame);
+	});
+}
+
 =pod
 
 Example output:
