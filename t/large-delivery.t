@@ -69,7 +69,7 @@ $cm->add(
 			$ch->bus->subscribe_to_event(
 				message => sub {
 					my ($ev, $type, $payload, $ctag) = @_;
-					note "Had message: $type, $payload";
+					note "Message was received";
 					$delivery->done($type => $payload);
 				}
 			);
