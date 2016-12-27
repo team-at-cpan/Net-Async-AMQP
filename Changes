@@ -1,6 +1,8 @@
 Revision history for {{$dist->name}}
 
 {{$NEXT}}
+
+2.000     2016-12-27 20:44:32+08:00 Asia/Kuala_Lumpur
 	Features:
 	* RPC server/client implementation, should be compatible with
 	http://www.rabbitmq.com/tutorials/tutorial-six-python.html
